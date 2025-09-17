@@ -4,10 +4,10 @@ function getEl(id){ return document.getElementById(id); }
 
 const messagesEl = getEl("messages");
 let currentUser = null;
-
+let lastSeenTs = 0;
 const renderedIds = new Set();
 
-function handleJoinSubmit(e) { // done
+function handleJoinSubmit(e) {
   e.preventDefault();
   const username = getEl("username")?.value.trim();
   currentUser = username || "Anonymous";
@@ -19,7 +19,7 @@ function handleJoinSubmit(e) { // done
     join.style.display = "none";
     chat.style.display = "grid";
   }
-  fetchMsg();
+  keepFetchingMessages();
 }
 
 function renderMessage(message){
@@ -69,44 +69,35 @@ function renderMessage(message){
     const bubble = msg.querySelector(".bubble");
     const pickedColor = getEl("color-picker")?.value;
     if(isMe && pickedColor) {
-        bubble.style.backgroundColor = pickedColor;
+      bubble.style.backgroundColor = pickedColor;
     }
     messagesEl.appendChild(msg);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-
 }
-
-// schedule a message to be sent at some time in the future.
-
-
-// replay to other msgs
-
 
 // see msgs
-async function fetchMsg() {
+async function keepFetchingMessages() {
     try{
-        const res = await fetch(API);
+        const queryString = lastSeenTs ? `?since=${lastSeenTs}` : "";
+        const res = await fetch(`${API}${queryString}`);
         if(!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
-        data.forEach(renderMessage);;
-    } catch (error){
-        console.error(`Fetch failed: ${error.message}`);
+
+        for(const msg of data){
+            if(msg.id != null && renderedIds.has(String(msg.id))){
+                updateCounts(msg.id, Number(msg.likes ?? 0), Number(msg.dislikes ?? 0));
+            } else{
+                renderMessage(msg);
+            }
+            if(typeof msg.timestamp === "number" && msg.timestamp > lastSeenTs){
+                lastSeenTs = msg.timestamp;
+            }
+        }
+    } catch (err) {
+    console.error(`Fetch failed: ${err.message}`);
+    } finally {
+        setTimeout(keepFetchingMessages, 1000);
     }
 }
-
-const keepFetchingMessages = async () => {
-  const lastMessageTime =
-    state.messages.length > 0
-      ? state.messages[state.messages.length - 1].timestamp
-      : null;
-  const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
-  const url = `${API}/messages${queryString}`;
-  const rawResponse = await fetch(url);
-  const response = await rawResponse.json();
-  state.messages.push(...response);
-  renderMessage();
-  setTimeout(keepFetchingMessages, 100);
-};
 
 // add msg + change color of msg
 async function addMsg(e) {
