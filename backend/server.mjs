@@ -32,14 +32,21 @@ function getMsg(req, res) {
 
 
 app.get("/messages", (req, res) => {
-  const msg = messages.map((m) => ({
-    id: m.id,
-    sender: m.sender,
-    content: m.content,
-    timestamp: m.timestamp,
-    ...counts(m),
-  }));
-  res.json(msg);
+  const raw = req.query.since;
+  const n = raw == null ? 0 : Number(raw);
+  const since = Number.isFinite(n) ? n : 0;
+
+  const filtered = messages
+    .filter((m) => m.timestamp >= since)
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .map((m) => ({
+      id: m.id,
+      sender: m.sender,
+      content: m.content,
+      timestamp: m.timestamp,
+      ...counts(m),
+    }));
+  res.json(filtered);
 });
 
 app.post("/messages", (req, res) => {
