@@ -70,6 +70,18 @@ app.post("/messages", (req, res) => {
   return res.status(201).json({ ...message, likes, dislikes });
 });
 
+app.get("/messages/:id/reactions", (req, res) => {
+  const msg = getMsg(req, res);
+  if (!msg) return;
+  const { likes, dislikes } = counts(msg);
+  res.json({
+    id: msg.id,
+    likes,
+    dislikes,
+    reactions: msg.reactions.map((r) => ({ type: r.type, at: r.at })),
+  });
+});
+
 app.post("/messages/:id/reactions", (req, res) => {
   const msg = getMsg(req, res);
   if (!msg) return;
