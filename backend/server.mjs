@@ -1,8 +1,9 @@
 import express from "express";
 import cors from "cors";
+import crypto from "crypto"
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -20,9 +21,12 @@ function counts(msg) {
 }
 
 function getMsg(req, res) {
-  const id = Number(req.params.id);
+  const id = String(req.params.id);
   const msg = messages.find((m) => m.id === id);
-  if (!msg) res.status(404).json({ error: "Message not found" });
+  if (!msg){
+    res.status(404).json({ error: "Message not found" });
+    return null;
+  }
   return msg;
 }
 
@@ -47,10 +51,10 @@ app.post("/messages", (req, res) => {
   }
 
   const message = {
-    id: Date.now(),
+    id: crypto.randomUUID(),
     sender: body.sender || "Anonymous",
     content: body.content,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date(),
     reactions: [],
   };
 
