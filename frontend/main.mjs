@@ -6,6 +6,8 @@ const messagesEl = getEl("messages");
 let currentUser = null;
 let lastSeenTs = 0;
 const renderedIds = new Set();
+let currentBubbleColor = "#fadcfc";
+
 
 function handleJoinSubmit(e) {
   e.preventDefault();
@@ -67,9 +69,8 @@ function renderMessage(message){
     msg.querySelector(".dislike-count").textContent = Number(message.dislikes ?? 0);
  
     const bubble = msg.querySelector(".bubble");
-    const pickedColor = getEl("color-picker")?.value;
-    if(isMe && pickedColor) {
-      bubble.style.backgroundColor = pickedColor;
+    if(isMe) {
+        bubble.style.backgroundColor = currentBubbleColor;
     }
     messagesEl.appendChild(msg);
 }
@@ -99,7 +100,6 @@ async function keepFetchingMessages() {
     }
 }
 
-// add msg + change color of msg
 async function addMsg(e) {
     e.preventDefault();
 
@@ -173,4 +173,11 @@ window.onload = () => {
        console.error(`Reaction failed: ${err.message}`); 
     }  
     });
+    const colorPicker = getEl("color-picker");
+    if (colorPicker) {
+      colorPicker.value = currentBubbleColor;
+      colorPicker.addEventListener("input", (e) => {
+        currentBubbleColor = e.target.value;
+      });
+    }
 }
