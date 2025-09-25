@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="chat app">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  >
+  <link rel="stylesheet" href="../../shared/frontend/style.css">
+
+  <script type="module" src="main.mjs"></script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Join screen (shown first) -->
+    <section id="join-screen" aria-labelledby="join-title">
+      <h1 id="join-title">Join Chat</h1>
+      <form id="user-form" autocomplete="off">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required placeholder="Enter a username">
+        <button type="submit" id="join-btn">Join</button>
+      </form>
+    </section>
+
+    <!-- Chat screen (hidden until user joins) -->
+    <section id="chat-screen" hidden aria-label="Chat screen">
+      <header class="chat-header">
+        <h2 class="chat-title">Chat</h2>
+        <div class="current-user" id="current-user" aria-live="polite"></div>
+      </header>
+
+      <!-- Messages list -->
+      <main id="messages" class="messages" aria-live="polite" aria-relevant="additions"></main>
+
+      <!-- Composer pinned to bottom -->
+      <form id="message-form" class="composer" autocomplete="off">
+        <input type="text" id="msg-input" placeholder="Type a message">
+        <input type="color" id="color-picker" title="Message color">
+        <button id="send-msg" type="submit" aria-label="Send">
+          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+        </button>
+      </form>
+    </section>
+
+  </div>
+</body>
+</html>
