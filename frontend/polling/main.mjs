@@ -5,7 +5,7 @@ import {
   updateCounts,
   getMessagesSince,
   wireCommonEvents,
-} from "../../shared/frontend/frontend.mjs";
+} from "/shared/frontend/frontend.mjs";
 
 function startPolling() {
   async function tick() {
