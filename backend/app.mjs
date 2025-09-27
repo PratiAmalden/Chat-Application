@@ -5,8 +5,8 @@ import {
   createMsg,
   listSince,
   getMsg,
-  toClient,
 } from "../shared/backend/server.mjs";
+import { toClient } from "../shared/backend/common.mjs";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -32,7 +32,7 @@ app.post("/messages", (req, res) => {
 });
 
 app.get("/messages/:id/reactions", (req, res) => {
-  const msg = getMsg(req, res);
+  const msg = getMsg(req.params.id);
   if (!msg)
     return res.status(400).json({
       error: "Message not found",
