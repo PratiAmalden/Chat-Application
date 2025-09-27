@@ -121,7 +121,7 @@ export function bumpLastSeen(ts) {
   if (Number.isFinite(n)) {
     state.lastSeenTs = Math.max(state.lastSeenTs || 0, n);
   } else if (ts) {
-    const d = new Date(n).getTime();
+    const d = new Date(ts).getTime();
     if (Number.isFinite(d)) {
       state.lastSeenTs = Math.max(state.lastSeenTs || 0, d);
     }
@@ -183,11 +183,14 @@ export function wireCommonEvents({ onJoined, sendChat, sendReactionFn, canSend, 
   });
 
   messagesEl()?.addEventListener("click", async (e) => {
-    const btn = e.target.closest(".like-btn, .dislike-btn");
+    const btn = e.target.closest("button.like-btn, button.dislike-btn");
+    if (!btn) return;
+
     const container = e.target.closest("article.message");
     const id = container?.dataset.id;
-    if (!id & !btn) return;
-    if (!canTx) return console.error("Not connected");
+    if (!id) return;
+
+    if (!canTx()) return console.error("Not connected");
 
     const reaction = btn.classList.contains("like-btn") ? "like" : "dislike";
     try {
