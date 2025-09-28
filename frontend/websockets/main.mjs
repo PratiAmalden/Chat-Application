@@ -4,7 +4,7 @@ import {
   updateCounts,
   bumpLastSeen,
   wireCommonEvents,
-} from "/shared/frontend/frontend.mjs";
+} from "../utils/helpers.mjs";
 
 let ws = null;
 let wsReady = false;

@@ -1,10 +1,10 @@
 import crypto from "crypto";
-import { toClient,  counts} from "./common.mjs";
+import { toClient, counts } from "./common.mjs";
 
 let messages = [];
 
 export function getMsg(id) {
-  return messages.find((m) => String(m.id )=== String(id) || null);
+  return messages.find((m) => String(m.id) === String(id) || null);
 }
 
 export function listSince(since = 0) {

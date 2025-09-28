@@ -1,11 +1,6 @@
 import { server as WebSocketServer } from "websocket";
 import http from "http";
-import {
-  addReaction,
-  createMsg,
-  listSince,
-} from "../shared/backend/server.mjs";
-
+import { addReaction, createMsg, listSince } from "./utils/server.mjs";
 
 const PORT = process.env.PORT || 8080;
 const clients = new Set();

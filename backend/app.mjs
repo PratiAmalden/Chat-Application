@@ -1,12 +1,7 @@
 import express from "express";
 import cors from "cors";
-import {
-  addReaction,
-  createMsg,
-  listSince,
-  getMsg,
-} from "../shared/backend/server.mjs";
-import { toClient } from "../shared/backend/common.mjs";
+import { addReaction, createMsg, listSince, getMsg } from "./utils/server.mjs";
+import { toClient } from "./utils/common.mjs";
 
 const app = express();
 const port = process.env.PORT || 3000;
