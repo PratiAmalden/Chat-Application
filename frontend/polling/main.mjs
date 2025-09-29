@@ -5,7 +5,7 @@ import {
   updateCounts,
   getMessagesSince,
   wireCommonEvents,
-} from "../utils/helpers.mjs";
+} from "/utils/helpers.mjs";
 
 function startPolling() {
   async function tick() {
