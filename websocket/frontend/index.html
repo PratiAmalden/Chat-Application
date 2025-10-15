@@ -8,9 +8,9 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
   >
-  <link rel="stylesheet" href="/css/style.css">
-
-  <script type="module" src="main.mjs"></script>
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Chat App</title>
+  <script type="module" src="./js/app.mjs"></script>
 </head>
 <body>
   <div class="app">
@@ -38,7 +38,7 @@
       <!-- Composer pinned to bottom -->
       <form id="message-form" class="composer" autocomplete="off">
         <input type="text" id="msg-input" placeholder="Type a message">
-        <input type="color" id="color-picker" title="Message color">
+        <input type="color" id="color-picker" title="Message color" value="#fadcfc">
         <button id="send-msg" type="submit" aria-label="Send">
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
         </button>

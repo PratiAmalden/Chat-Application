@@ -1,6 +1,6 @@
 import { server as WebSocketServer } from "websocket";
 import http from "http";
-import { addReaction, createMsg, listSince } from "./utils/server.mjs";
+import { addReaction, createMsg, listSince } from "./utils.mjs";
 
 const PORT = process.env.PORT || 8080;
 const clients = new Set();
@@ -16,25 +16,36 @@ function broadcast(type, payload = {}) {
   for (const c of clients) {
     try {
       c.sendUTF(data);
-    } catch {}
+    } catch (err) { clients.delete(c) }
   }
+}
+
+function sendError(connection, message){
+  connection.sendUTF(
+    JSON.stringify({
+      type: "error",
+      message,
+    })
+  )
 }
 
 function originIsAllowed(origin) {
   return true;
 }
 
-wss.on("request", (request) => {
-  if (!originIsAllowed(request.origin)) {
-    request.reject();
+wss.on("request", (req) => {
+  if (!originIsAllowed(req.origin)) {
+    req.reject();
     return;
   }
 
-  let connection = request.accept(null, request.origin);
+  const id = req.resourceURL?.query?.id;
+  let connection = req.accept(null, req.origin);
+  connection.userId = typeof id === "string" && id.trim() ? id.trim() : "Anonymous";
+
   connection.sendUTF(
     JSON.stringify({ type: "history", messages: listSince(0) })
   );
-
   clients.add(connection);
 
   connection.on("message", (message) => {
@@ -44,59 +55,54 @@ wss.on("request", (request) => {
     try {
       msg = JSON.parse(message.utf8Data);
     } catch {
-      connection.sendUTF(
-        JSON.stringify({
-          type: "error",
-          message: "Message not found",
-        })
-      );
+      sendError(connection, "Invalid JSON in message");
       return;
     }
 
     switch (msg.type) {
       case "sync": {
-        const history = listSince(0);
+        const since = Number(msg.since) || 0;
+        const history = listSince(since);
         connection.sendUTF(
           JSON.stringify({
             type: "history",
-            message: history,
+            messages: history,
           })
         );
         break;
       }
       case "chat": {
         const sender =
-          typeof msg.sender === "string" ? msg.sender.trim() : "Anonymous";
-        const clientMsg = createMsg({ sender, content: msg.content });
+          typeof msg.sender === "string"
+            ? msg.sender.trim()
+            : connection.userId || "Anonymous";
+
+        if (typeof msg.content !== "string" || !msg.content.trim()) {
+          sendError(connection, "content is required");
+          return;
+        }
+
+        const clientMsg = createMsg({ sender, content: msg.content.trim() });
         broadcast("chat", clientMsg);
         break;
       }
       case "reaction": {
         if (msg.reaction !== "like" && msg.reaction !== "dislike") {
-          connection.sendUTF(
-            JSON.stringify({
-              type: "error",
-              message: "reaction must be like or dislike",
-            })
-          );
+          sendError(connection, "reaction must be like or dislike");
+          return;
+        }
+        if (!msg.id) { 
+          sendError(connection, "message id is required for reaction");
           return;
         }
 
-        const reaction = addReaction(msg.id, msg.reaction);
-        if (!msg.id) {
-          connection.sendUTF(
-            JSON.stringify({
-              type: "error",
-              message: "message id is required for reaction",
-            })
-          );
-          return;
-        }
-        broadcast("reaction", reaction);
+        const reaction = addReaction(msg.id, msg.reaction);  
+        if (reaction) broadcast("reaction", reaction);
+        else sendError(connection, "message not found");
         break;
       }
       default:
-        break;
+        sendError(connection, `Unknown message type: ${String(msg.type)}`);
     }
   });
   connection.on("close", () => {

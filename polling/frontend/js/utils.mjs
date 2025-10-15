@@ -1,7 +1,7 @@
 // State
 let _currentUser = null;
 let _lastSeenTs = 0;
-let _currentBubbleColor = "#fadcfc";
+let _currentBubbleColor = localStorage.getItem("bubbleColor") || "#fadcfc";
 const renderedIds = new Set();
 
 export const state = {
@@ -22,6 +22,7 @@ export const state = {
   },
   set bubbleColor(v) {
     _currentBubbleColor = v || "#fadcfc";
+    localStorage.setItem("bubbleColor", _currentBubbleColor);
   },
 };
 
@@ -87,12 +88,17 @@ export function renderMessage(message) {
   msg.querySelector(".name").textContent = message.sender || "Anonymous";
   msg.querySelector(".msg-text").textContent = message.content || "";
   msg.querySelector(".like-count").textContent = Number(message.likes ?? 0);
-  msg.querySelector(".dislike-count").textContent = Number( message.dislikes ?? 0 );
+  msg.querySelector(".dislike-count").textContent = Number(
+    message.dislikes ?? 0
+  );
 
   const bubble = msg.querySelector(".bubble");
   if (isMe) bubble.style.backgroundColor = state.bubbleColor;
 
   root.appendChild(msg);
+  requestAnimationFrame(() => {
+    root.scrollTop = root.scrollHeight;
+  });
 }
 
 export function updateCounts(id, likes, dislikes) {
@@ -116,17 +122,6 @@ export async function getMessagesSince(ts) {
   return res.json();
 }
 
-export function bumpLastSeen(ts) {
-  const n = Number(ts);
-  if (Number.isFinite(n)) {
-    state.lastSeenTs = Math.max(state.lastSeenTs || 0, n);
-  } else if (ts) {
-    const d = new Date(ts).getTime();
-    if (Number.isFinite(d)) {
-      state.lastSeenTs = Math.max(state.lastSeenTs || 0, d);
-    }
-  }
-}
 
 export async function addMsg(payload) {
   const res = await fetch(API, {
@@ -149,17 +144,19 @@ export async function sendReaction(id, type) {
 }
 
 // Events wiring
-export function wireCommonEvents({ onJoined, sendChat, sendReactionFn, canSend, } = {}) {
+export function wireCommonEvents({ onJoined = () => {} }){
   const on = (id, type, h) => getEl(id)?.addEventListener(type, h);
-  const canTx = () => (typeof canSend === "function" ? canSend() : true);
 
   on("join-screen", "submit", async (e) => {
     e.preventDefault();
     const username = getEl("username")?.value.trim();
     state.currentUser = username || "Anonymous";
     handleJoinSubmit();
-    try { if (typeof onJoined === "function") await onJoined(); }
-    catch (err) { console.error(`onJoined failed: ${err?.message || err}`); }
+    try {
+      await onJoined();
+    } catch (err) {
+      console.error(`onJoined failed: ${err?.message || err}`);
+    }
   });
 
   on("message-form", "submit", async (e) => {
@@ -167,15 +164,9 @@ export function wireCommonEvents({ onJoined, sendChat, sendReactionFn, canSend, 
     const inputEl = getEl("msg-input");
     const content = inputEl?.value.trim();
     if (!content) return;
-    if (!canTx) return console.error("Not connected");
-
     try {
-      if (typeof sendChat === "function") {
-        await sendChat(content);
-      } else {
-        const serverMsg = await addMsg({ sender: state.currentUser, content });
-        renderMessage(serverMsg);
-      }
+      const serverMsg = await addMsg({ sender: state.currentUser, content });
+      renderMessage(serverMsg);
       e.target.reset();
     } catch (err) {
       console.error(`Send failed: ${err?.message || err}`);
@@ -190,16 +181,10 @@ export function wireCommonEvents({ onJoined, sendChat, sendReactionFn, canSend, 
     const id = container?.dataset.id;
     if (!id) return;
 
-    if (!canTx()) return console.error("Not connected");
-
     const reaction = btn.classList.contains("like-btn") ? "like" : "dislike";
     try {
-      if (typeof sendReactionFn === "function") {
-        await sendReactionFn(id, reaction);
-      } else {
-        const { likes, dislikes } = await sendReaction(id, reaction);
-        updateCounts(id, Number(likes ?? 0), Number(dislikes ?? 0));
-      }
+      const { likes, dislikes } = await sendReaction(id, reaction);
+      updateCounts(id, Number(likes ?? 0), Number(dislikes ?? 0));
     } catch (err) {
       console.error(`Reaction failed: ${err?.message || err}`);
     }

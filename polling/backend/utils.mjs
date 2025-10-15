@@ -1,10 +1,32 @@
 import crypto from "crypto";
-import { toClient, counts } from "./common.mjs";
 
 let messages = [];
+const MAX_MESSAGES = 500;
 
 export function getMsg(id) {
-  return messages.find((m) => String(m.id) === String(id) || null);
+  return messages.find((m) => String(m.id) === String(id)) || null;
+}
+
+export function counts(msg) {
+  let likes = 0;
+  let dislikes = 0;
+  for (const r of msg.reactions) {
+    if (r.type === "like") likes += 1;
+    else if (r.type === "dislike") dislikes += 1;
+  }
+  return { likes, dislikes };
+}
+
+export function toClient(msg) {
+  const { likes, dislikes } = counts(msg);
+  return {
+    id: msg.id,
+    sender: msg.sender,
+    content: msg.content,
+    timestamp: msg.timestamp,
+    likes,
+    dislikes,
+  };
 }
 
 export function listSince(since = 0) {
@@ -25,6 +47,9 @@ export function createMsg({ sender = "Anonymous", content }) {
     reactions: [],
   };
   messages.push(message);
+
+  if (messages.length > MAX_MESSAGES) messages.shift();
+
   return toClient(message);
 }
 
@@ -32,10 +57,12 @@ export function addReaction(id, type) {
   const msg = getMsg(id);
   if (!msg) return;
 
-  if (type !== "like" && type !== "dislike") {
+  if (!["like", "dislike"].includes(type)) {
     throw new Error("Type must be 'like' or 'dislike' ");
   }
   msg.reactions.push({ type, at: new Date().toISOString() });
+
   const { likes, dislikes } = counts(msg);
+  
   return { id: msg.id, likes, dislikes };
 }

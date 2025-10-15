@@ -4,7 +4,8 @@ import {
   updateCounts,
   bumpLastSeen,
   wireCommonEvents,
-} from "/utils/helpers.mjs";
+  messagesEl,
+} from "./utils.mjs";
 
 let ws = null;
 let wsReady = false;
@@ -13,6 +14,7 @@ function connectWS() {
   const url = `ws://localhost:8080/?id=${encodeURIComponent(
     state.currentUser
   )}`;
+
   ws = new WebSocket(url);
 
   ws.onopen = () => {
@@ -29,24 +31,28 @@ function connectWS() {
     }
 
     if (data.type === "history" && Array.isArray(data.messages)) {
-      for (const m of data.messages) {
-        renderMessage(m);
-        bumpLastSeen(m.timestamp);
+      const root = messagesEl();
+      for (const msg of data.messages) {
+        renderMessage(msg, root);
+        bumpLastSeen(msg.timestamp);
       }
+      root.scrollTop = root.scrollHeight;
       return;
     }
 
     if (data.type === "chat") {
+      const root = messagesEl();
       if (typeof data.id !== "undefined") {
-        renderMessage(data);
+        renderMessage(data, root);
         bumpLastSeen(data.timestamp);
         updateCounts(
           data.id,
           Number(data.likes ?? 0),
           Number(data.dislikes ?? 0)
-        );
+      );
+      root.scrollTop = root.scrollHeight;
       }
-      return;
+    return;
     }
 
     if (data.type === "reaction") {
@@ -65,32 +71,25 @@ function connectWS() {
 
   ws.onclose = () => {
     wsReady = false;
-    console.log("Disconnect from server");
+    console.log("Disconnected, retrying in 3s...");
+    setTimeout(connectWS, 3000)
   };
 }
 
-window.onload = () => {
+window.addEventListener("DOMContentLoaded", () => {
   wireCommonEvents({
     onJoined() {
       if (!ws || !wsReady) connectWS();
     },
     sendChat(content) {
-      if (!wsReady) {
-        console.error("Not connected");
-        return;
-      }
       const payload = { type: "chat", sender: state.currentUser, content };
-      ws.send(JSON.stringify(payload));
+      if (wsReady) ws.send(JSON.stringify(payload));
+      else console.warn("WS not ready, message dropped");
     },
-    sendReactionFn(id, reaction) {
-      if (!wsReady) {
-        console.error("Not connected");
-        return;
-      }
-      ws.send(JSON.stringify({ type: "reaction", id, reaction }));
-    },
-    canSend() {
-      return wsReady;
+    sendReaction(id, reaction) {
+      const payload = { type: "reaction", id, reaction };
+      if (wsReady) ws.send(JSON.stringify(payload));
+      else console.warn("WS not ready, message dropped");
     },
   });
-};
+});

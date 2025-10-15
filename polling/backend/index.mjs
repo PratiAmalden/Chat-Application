@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { addReaction, createMsg, listSince, getMsg } from "./utils/server.mjs";
-import { toClient } from "./utils/common.mjs";
+import { addReaction, createMsg, listSince, getMsg, toClient } from "./utils.mjs";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,16 +19,14 @@ app.post("/messages", (req, res) => {
     const msg = createMsg({ sender, content });
     return res.status(201).json(msg);
   } catch (err) {
-    return res.status(400).json({
-      error: "Expected JSON with at least a 'content' field",
-    });
+    return res.status(400).json({ error: err.message });
   }
 });
 
 app.get("/messages/:id/reactions", (req, res) => {
   const msg = getMsg(req.params.id);
   if (!msg)
-    return res.status(400).json({
+    return res.status(404).json({
       error: "Message not found",
     });
   res.json({
@@ -42,12 +39,16 @@ app.get("/messages/:id/reactions", (req, res) => {
 
 app.post("/messages/:id/reactions", (req, res) => {
   try {
+    const { type } = req.body || {};
+    if (!["like", "dislike"].includes(type)) {
+      throw new Error("Body must include { type: 'like' | 'dislike' }");
+    }
     const reaction = addReaction(req.params.id, (req.body || {}).type);
     return res.json(reaction);
   } catch (err) {
     return res
       .status(400)
-      .json({ error: "Body must include { type: 'like' | 'dislike' }" });
+      .json({ error: err.message });
   }
 });
 
