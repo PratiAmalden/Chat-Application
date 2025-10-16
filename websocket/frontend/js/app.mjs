@@ -11,7 +11,7 @@ let ws = null;
 let wsReady = false;
 
 function connectWS() {
-  const url = `ws://localhost:8080/?id=${encodeURIComponent(
+  const url = `wss://pratiamalden-chatapp-websocket.hosting.codeyourfuture.io/?id=${encodeURIComponent(
     state.currentUser
   )}`;
 

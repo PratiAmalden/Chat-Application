@@ -1,3 +1,6 @@
+// API
+export const API = "https://chatapp-server.hosting.codeyourfuture.io/messages";
+
 // State
 let _currentUser = null;
 let _lastSeenTs = 0;
@@ -112,16 +115,12 @@ export function updateCounts(id, likes, dislikes) {
   if (dislikeSpan) dislikeSpan.textContent = dislikes;
 }
 
-// API
-export const API = "http://127.0.0.1:3000/messages";
-
 export async function getMessagesSince(ts) {
   const qs = ts ? `?since=${ts}` : "";
   const res = await fetch(`${API}${qs}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
-
 
 export async function addMsg(payload) {
   const res = await fetch(API, {
@@ -144,7 +143,7 @@ export async function sendReaction(id, type) {
 }
 
 // Events wiring
-export function wireCommonEvents({ onJoined = () => {} }){
+export function wireCommonEvents({ onJoined = () => {} }) {
   const on = (id, type, h) => getEl(id)?.addEventListener(type, h);
 
   on("join-screen", "submit", async (e) => {
