@@ -16,7 +16,10 @@ function broadcast(type, payload = {}) {
   for (const c of clients) {
     try {
       c.sendUTF(data);
-    } catch (err) { clients.delete(c) }
+    } catch (err) {
+      // Maybe worth adding some logging here for debugging
+      clients.delete(c)
+    }
   }
 }
 
@@ -34,6 +37,7 @@ function originIsAllowed(origin) {
 }
 
 wss.on("request", (req) => {
+  // Why are you bothering with this check if it's always true? Is this a placeholder for the future? If so, I'd add a TODO comment on originIsAllowed describing what you intend to do.
   if (!originIsAllowed(req.origin)) {
     req.reject();
     return;
