@@ -9,6 +9,7 @@ const server = http.createServer((req, res) => {
   res.writeHead(200);
   res.end("OK");
 });
+
 const wss = new WebSocketServer({ httpServer: server });
 
 function broadcast(type, payload = {}) {
@@ -16,7 +17,10 @@ function broadcast(type, payload = {}) {
   for (const c of clients) {
     try {
       c.sendUTF(data);
-    } catch (err) { clients.delete(c) }
+    } catch (err) {
+      console.error("Failed to send to client:", err.message)
+      clients.delete(c);
+    }
   }
 }
 
