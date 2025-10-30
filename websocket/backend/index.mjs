@@ -34,6 +34,7 @@ function sendError(connection, message){
 }
 
 function originIsAllowed(origin) {
+  // TODO: Implement origin validation logic if needed in future
   return true;
 }
 
