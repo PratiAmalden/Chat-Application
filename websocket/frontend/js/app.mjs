@@ -40,6 +40,7 @@ function connectWS() {
       return;
     }
 
+    // What's the difference between history and chat?
     if (data.type === "chat") {
       const root = messagesEl();
       if (typeof data.id !== "undefined") {
@@ -65,6 +66,7 @@ function connectWS() {
     }
 
     if (data.type === "error") {
+      // A user is unlikely to see the console - how could you make this more clear to real users?
       console.log("Server error:", data.message);
     }
   };
