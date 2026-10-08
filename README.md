@@ -138,6 +138,16 @@ Dependencies are shared across both implementations using the root `package.json
 
 3. This version uses persistent WebSocket connections for true real-time communication.
 
+### Running with Docker
+
+From the `websocket` directory, build and start both services:
+
+```bash
+docker compose up --build
+```
+
+Open http://localhost:8081. The frontend container serves the static app and proxies WebSocket connections to the backend container. Stop the services with `Ctrl+C`, or run `docker compose down` from the same directory.
+
 ## Future Improvements
 
 - Multiple chat rooms
