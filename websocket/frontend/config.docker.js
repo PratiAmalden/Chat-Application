@@ -1,0 +1,1 @@
+window.CHAT_WEBSOCKET_URL = "/ws/";

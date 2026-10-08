@@ -11,11 +11,11 @@ let ws = null;
 let wsReady = false;
 
 function connectWS() {
-  const url = `wss://pratiamalden-chatapp-websocket.hosting.codeyourfuture.io/?id=${encodeURIComponent(
-    state.currentUser
-  )}`;
+  const socketUrl = new URL(window.CHAT_WEBSOCKET_URL, window.location.href);
+  socketUrl.protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  socketUrl.searchParams.set("id", state.currentUser);
 
-  ws = new WebSocket(url);
+  ws = new WebSocket(socketUrl);
 
   ws.onopen = () => {
     wsReady = true;
