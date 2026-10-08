@@ -1,0 +1,8 @@
+{
+  "name": "websocket-chat-backend",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "websocket": "1.0.35"
+  }
+}
