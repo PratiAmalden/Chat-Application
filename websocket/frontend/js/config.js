@@ -1,1 +1,0 @@
-window.CHAT_WEBSOCKET_URL = "wss://chatapp-server-websocket.grads.hosting.cyf.academy/";

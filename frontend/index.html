@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Compare long polling and WebSocket chat">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  >
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Chat App</title>
+  <script type="module" src="./js/app.mjs"></script>
+</head>
+<body>
+  <div class="app">
+
+    <section id="join-screen" aria-labelledby="join-title">
+      <h1 id="join-title">Join the chat</h1>
+      <p class="intro">Choose how your messages are delivered, then join the shared room.</p>
+      <form id="user-form" autocomplete="off">
+        <fieldset class="transport-options">
+          <legend>Choose a transport</legend>
+          <label class="transport-option">
+            <input type="radio" name="transport" value="long-polling" checked>
+            <span class="option-copy">
+              <strong>Long polling</strong>
+              <span>The server holds each HTTP request until there is an update.</span>
+            </span>
+          </label>
+          <label class="transport-option">
+            <input type="radio" name="transport" value="websocket">
+            <span class="option-copy">
+              <strong>WebSocket</strong>
+              <span>A persistent, two-way connection sends updates immediately.</span>
+            </span>
+          </label>
+        </fieldset>
+        <label for="username">Your name</label>
+        <input type="text" id="username" name="username" required maxlength="40" placeholder="Enter a name">
+        <button type="submit" id="join-btn">Join chat</button>
+      </form>
+    </section>
+
+    <section id="chat-screen" hidden aria-label="Chat room">
+      <header class="chat-header">
+        <div>
+          <h2 class="chat-title">Chat</h2>
+          <p class="transport-status" id="transport-status" role="status"></p>
+        </div>
+        <div class="current-user" id="current-user" aria-live="polite"></div>
+      </header>
+
+      <main id="messages" class="messages" aria-live="polite" aria-relevant="additions"></main>
+
+      <form id="message-form" class="composer" autocomplete="off">
+        <input type="text" id="msg-input" maxlength="2000" placeholder="Type a message" aria-label="Message">
+        <input type="color" id="color-picker" title="Message color" value="#fadcfc" aria-label="Message color">
+        <button id="send-msg" type="submit" aria-label="Send">
+          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+        </button>
+      </form>
+    </section>
+  </div>
+</body>
+</html>
