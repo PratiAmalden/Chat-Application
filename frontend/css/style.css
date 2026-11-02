@@ -1,0 +1,147 @@
+* { box-sizing: border-box; }
+html, body { min-height: 100%; margin: 0; }
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #d1cbd6;
+  color: #1b1d23;
+}
+.app {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background:
+    radial-gradient(600px 400px at 0% 0%, rgba(59,130,246,.15), transparent 70%),
+    radial-gradient(500px 300px at 100% 0%, rgba(16,185,129,.15), transparent 70%),
+    #d1cbd6;
+}
+section {
+  width: min(900px, 100%);
+  background: #fff;
+  border: 1px solid #e2e5ec;
+  border-radius: 18px;
+  overflow: hidden;
+}
+[hidden] { display: none !important; }
+#join-screen { padding: 40px 28px; }
+.eyebrow {
+  margin: 0 0 8px;
+  color: #6b4b84;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+#join-screen h1 { margin: 0 0 8px; font-size: 28px; }
+.intro { margin: 0 0 24px; color: #626875; }
+#user-form { display: grid; gap: 12px; max-width: 520px; }
+#user-form > label { font-size: 14px; color: #33373e; }
+.transport-options {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+}
+.transport-options legend { margin-bottom: 10px; font-weight: 650; }
+.transport-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2e5ec;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.transport-option:has(input:checked) {
+  border-color: #9c69c2;
+  background: #faf6fd;
+  box-shadow: 0 0 0 2px rgba(156, 105, 194, .12);
+}
+.transport-option input { margin-top: 4px; accent-color: #7b3fa0; }
+.option-copy { display: grid; gap: 4px; }
+.option-copy span { color: #626875; font-size: 13px; line-height: 1.4; }
+#username, #msg-input {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #e2e5ec;
+  border-radius: 12px;
+  font: inherit;
+}
+#join-btn, #send-msg {
+  border: 0;
+  background: hsl(273, 63%, 81%);
+  color: #390a60;
+  font-weight: 650;
+  cursor: pointer;
+}
+#join-btn { width: fit-content; padding: 10px 16px; border-radius: 12px; }
+#chat-screen { grid-template-rows: auto 1fr auto; min-height: min(78vh, 820px); }
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2e5ec;
+}
+.chat-title { margin: 0; font-size: 18px; }
+.transport-status { margin: 4px 0 0; color: #6b7280; font-size: 12px; }
+.current-user {
+  padding: 4px 10px;
+  border: 1px solid #e2e5ec;
+  border-radius: 999px;
+  color: #6b7280;
+  font-size: 13px;
+}
+.messages {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  overflow-y: auto;
+  padding: 20px 18px 80px;
+}
+.message {
+  display: grid;
+  grid-template: "name" auto "bubble" auto "meta" auto / 1fr;
+  gap: 6px;
+  max-width: min(70ch, 85%);
+}
+.message .name { margin: 0; padding: 0 6px; color: #6b7280; font-size: 12px; }
+.message .bubble { padding: 10px 14px; border: 1px solid #e2e5ec; border-radius: 16px; background: #eef2ff; }
+.message .msg-text { margin: 0; line-height: 1.4; overflow-wrap: anywhere; }
+.message .meta { display: flex; gap: 8px; padding: 0 6px; color: #6b7280; font-size: 11px; }
+.message.me { justify-self: end; text-align: right; }
+.message.me .bubble { background: #fadcfc; }
+.message.me .meta { justify-content: flex-end; }
+.like-btn, .dislike-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #85364b;
+  background: transparent;
+  cursor: pointer;
+}
+.like-btn:hover, .dislike-btn:hover { border-color: #e2e5ec; }
+.composer {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #e2e5ec;
+  background: #fff;
+}
+#msg-input { border-radius: 999px; }
+#color-picker, #send-msg { width: 42px; height: 42px; border-radius: 999px; }
+#color-picker { border: 1px solid #e2e5ec; }
+#send-msg { display: grid; place-items: center; }
+@media (max-width: 560px) {
+  .app { padding: 12px; }
+  #join-screen { padding: 26px 16px; }
+  .current-user { display: none; }
+  .message { max-width: 92%; }
+}
