@@ -1,24 +1,15 @@
-# Chat Application (Polling vs WebSocket)
+# Chat Application Comparison (Polling vs WebSocket)
 
 This project contains two implementations of a simple **single-room chat application**:
 - One using **HTTP polling with Express**
 - One using **WebSocket with the `websocket` npm library**
+Both use the same server, in-memory message store, API, and frontend.
 
 The goal of this project is to compare and understand different real-time communication methods in Node.js.
 
----
-
 ## Live Demo
 
-Both implementations are deployed and publicly accessible:
-
-### WebSocket version
-- Frontend: https://pratiamaladen-frontend.hosting.codeyourfuture.io  
-- Backend: https://pratiamalden-chatapp-websocket.hosting.codeyourfuture.io  
-
-### Polling version
-- Frontend: https://chatapp-frontend.hosting.codeyourfuture.io  
-- Backend: https://chatapp-server.hosting.codeyourfuture.io/messages  
+https://pratiamalden-chatapp.grads.hosting.cyf.academy
 
 ---
 
@@ -43,117 +34,47 @@ Both implementations are deployed and publicly accessible:
 
 ---
 
-## Project Purpose
+## Run locally
 
-This project is primarily built for:
-- Learning real-time communication concepts
-- Understanding the difference between polling and WebSocket communication
-- Practicing backend and frontend interaction
-
----
-
-## Project Structure
-
-```
-Chat-Application/
-├── polling/
-│   ├── backend/
-│   │   ├── index.mjs
-│   │   └── utils.mjs
-│   └── frontend/
-│       ├── index.html
-│       ├── css/
-│       │   └── style.css
-│       └── js/
-│           ├── app.mjs
-│           └── utils.mjs
-│
-├── websocket/
-│   ├── backend/
-│   │   ├── index.mjs
-│   │   └── utils.mjs
-│   └── frontend/
-│       ├── index.html
-│       ├── css/
-│       │   └── style.css
-│       └── js/
-│           ├── app.mjs
-│           └── utils.mjs
-│
-├── package.json
-├── package-lock.json
-└── README.md
-```
-
-## Installation
-
-### Prerequisites
-- Node.js (v16+ recommended)
-- npm
-
-### Setup
-Clone the repository and install dependencies:
+Requirements: Node.js 22+ and npm.
 
 ```bash
-git clone https://github.com/PratiAmalden/Chat-Application.git
-cd Chat-Application
-npm install
-````
+npm ci
+npm start
+```
 
-Dependencies are shared across both implementations using the root `package.json`.
-
----
-
-## Running the Polling Version
-
-1. Start the server:
-
-   ```bash
-   node polling/backend/index.mjs
-   ```
-
-2. Open the frontend:
-
-   * Open `polling/frontend/index.html` directly in your browser
-     **or**
-   * Serve it using a simple local server
-
-3. The app will connect to the polling backend and simulate real-time updates by regularly requesting new messages.
+Open [http://localhost:3000](http://localhost:3000). Messages and reactions are held in memory, so they are cleared when the server restarts.
 
 ---
-
-## Running the WebSocket Version
-
-1. Start the backend:
-
-   ```bash
-   node websocket/backend/index.mjs
-   ```
-
-2. Open the frontend:
-
-   * Open `websocket/frontend/index.html` in your browser
-     **or**
-   * Serve it through a local server
-
-3. This version uses persistent WebSocket connections for true real-time communication.
 
 ### Running with Docker
 
-From the `websocket` directory, build and start both services:
-
 ```bash
-docker compose up --build
+docker build -t chat-application .
+docker run --rm -p 3000:3000 chat-application
 ```
 
-Open http://localhost:8081. The frontend container serves the static app and proxies WebSocket connections to the backend container. Stop the services with `Ctrl+C`, or run `docker compose down` from the same directory.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Future Improvements
+---
+## Project layout
 
-- Multiple chat rooms
-- Proper user accounts (persistent identities stored server-side)
-- Authentication and basic authorization
-- Message history with database 
-- UI improvements
-- Typing indicators and read receipts
+```text
+backend/
+  index.mjs       Express API, long-poll endpoint, WebSocket server, static hosting
+  utils.mjs       Shared in-memory message store and long-poll change notifications
+frontend/
+  index.html      Transport picker and shared chat UI
+  js/app.mjs      Long-poll and WebSocket client adapters
+  js/utils.mjs    Shared UI state, rendering, and events
+  css/style.css   Shared styles
+Dockerfile        Single-image deployment
+```
+---
+
+## How the transports work
+
+- **Long polling:** the browser makes an HTTP request that stays open until a chat/reaction update or a 25-second timeout, then immediately opens the next request.
+- **WebSocket:** the browser upgrades one connection at `/ws/`; the server pushes chats and reactions over that persistent connection.
+- Both transports share the same in-memory state, so users in either mode see the same room and reactions.
 
